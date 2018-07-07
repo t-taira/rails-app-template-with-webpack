@@ -72,8 +72,8 @@ after_bundle do
   CODE
 
   # app
+  run("docker-compose rm -vf")
   run("docker-compose build")
-  #run("docker-compose run web bundle install")
   run("docker-compose run web bundle exec rails g scaffold products name:string price:integer content:text")
   run("docker-compose run web bundle exec rake db:drop db:create db:migrate db:seed")
   run('mkdir app/controllers/api')

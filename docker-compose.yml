@@ -10,7 +10,7 @@ services:
       - '3306:3306'
   webpacker:
     build: .
-    command: ./bin/webpack-dev-server
+    command: /bin/bash -c 'rm -rf /app/public/packs; /app/bin/webpack-dev-server'
     environment:
       NODE_ENV: development
       RAILS_ENV: development

@@ -8,6 +8,6 @@ RUN apt-get update && apt-get install -y yarn
 WORKDIR /tmp
 COPY Gemfile* /tmp/
 COPY Gemfile.lock /tmp/Gemfile.lock
-RUN bundle
+RUN bundle install
 WORKDIR /app
 COPY . /app
