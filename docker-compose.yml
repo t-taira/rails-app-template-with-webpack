@@ -1,0 +1,46 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - store:/var/lib/mysql
+    ports:
+      - '3306:3306'
+  webpacker:
+    build: .
+    command: ./bin/webpack-dev-server
+    environment:
+      NODE_ENV: development
+      RAILS_ENV: development
+      WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
+      WEBPACKER_DEV_SERVER_PUBLIC: 0.0.0.0:3035
+    volumes:
+      - .:/app
+      - bundle:/bundle
+    ports:
+      - '3035:3035'
+  web:
+    build: .
+    command: /bin/bash -c 'rm -rf tmp/pids/server.pid; bundle exec rails s -b 0.0.0.0'
+    environment:
+      RAILS_ENV: development
+      RAILS_DATABASE_URL: mysql2://root:@db:3306
+      WEBPACKER_DEV_SERVER_HOST: webpacker
+      WEBPACKER_DEV_SERVER_PUBLIC: webpacker:3035
+    volumes:
+      - .:/app
+      - bundle:/bundle
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+      - webpacker
+    tty: true
+    stdin_open: true
+volumes:
+  store:
+    driver: local
+  bundle:
+    driver: local
