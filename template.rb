@@ -61,31 +61,32 @@ gem_group :development, :test do
   gem "rspec-rails"
 end
 
-# seeds
-run("rm db/seeds.rb")
-file 'db/seeds.rb', <<-CODE
-require 'faker'
-
-Product.destroy_all
-10.times { p Product.create!(name: Faker::Pokemon.name, price: rand(100) + 1000, content: Faker::Lorem.sentence ) }
-CODE
-
-# app
-run("docker-compose build")
-run("docker-compose run web bundle install")
-run("docker-compose run web bundle exec rails g scaffold products name:string price:integer content:text")
-run("docker-compose run web bundle exec rake db:drop db:create db:migrate db:seed")
-run('mkdir app/controllers/api')
-run('cp app/controllers/products_controller.rb app/controllers/api')
-insert_into_file 'config/routes.rb', after: "# For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html\n" do <<-RUBY
-  namespace :api, format: :json do
-    resources :products, only: [:index, :create, :update]
-  end
-RUBY
-end
-gsub_file 'app/controllers/application_controller.rb', /protect_from_forgery/, '# protect_from_forgery'
-
 after_bundle do
+  # seeds
+  run("rm db/seeds.rb")
+  file 'db/seeds.rb', <<-CODE
+  require 'faker'
+
+  Product.destroy_all
+  10.times { p Product.create!(name: Faker::Pokemon.name, price: rand(100) + 1000, content: Faker::Lorem.sentence ) }
+  CODE
+
+  # app
+  run("docker-compose build")
+  #run("docker-compose run web bundle install")
+  run("docker-compose run web bundle exec rails g scaffold products name:string price:integer content:text")
+  run("docker-compose run web bundle exec rake db:drop db:create db:migrate db:seed")
+  run('mkdir app/controllers/api')
+  run('cp app/controllers/products_controller.rb app/controllers/api')
+  insert_into_file 'config/routes.rb', after: "# For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html\n" do <<-RUBY
+    namespace :api, format: :json do
+      resources :products, only: [:index, :create, :update]
+    end
+  RUBY
+  end
+  gsub_file 'app/controllers/application_controller.rb', /protect_from_forgery/, '# protect_from_forgery'
+
+  # git
   git :init
   git add: "."
   git commit: "-a -m 'Initial commit'"
